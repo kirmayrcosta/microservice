@@ -1,0 +1,20 @@
+FROM maven:3.6.3-openjdk-8
+
+RUN  mkdir /opt/app
+
+COPY ./pom.xml /opt/app/pom.xml
+COPY ./src /opt/app/src
+
+WORKDIR /opt/app
+
+RUN mvn clean package -DskipTests
+
+FROM openjdk:8-slim
+
+EXPOSE 8761
+
+COPY --from=0 /opt/app/target/discover*.jar /opt/discover/discover.jar
+
+WORKDIR /opt/discover
+
+CMD [ "java", "-jar", "discover.jar" ]
